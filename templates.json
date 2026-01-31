@@ -1,0 +1,223 @@
+{
+  "version": "2",
+  "templates": [
+    {
+      "type": "stack",
+      "title": "Home Assistant (macOS)",
+      "description": "Home Assistant optimized for macOS/M1 with port mappings. Discovery features may be limited.",
+      "note": "⚠️ macOS limitations: mDNS/device discovery won't work. Use IP addresses or integrations that don't require mDNS.",
+      "categories": ["Home Automation"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/home-assistant/assets/master/logo/logo.png",
+      "env": [
+        {
+          "name": "BASE_PATH",
+          "label": "Base Docker path",
+          "description": "Base directory for all Docker data (absolute path)",
+          "default": "/Users/mittalmak/docker"
+        },
+        {
+          "name": "TZ",
+          "label": "Timezone",
+          "default": "America/Los_Angeles"
+        },
+        {
+          "name": "HA_PORT",
+          "label": "Home Assistant Port",
+          "description": "Web UI port",
+          "default": "8123"
+        }
+      ],
+      "stackfile": {
+        "version": "3.9",
+        "services": {
+          "homeassistant": {
+            "image": "ghcr.io/home-assistant/home-assistant:stable",
+            "container_name": "homeassistant",
+            "restart": "unless-stopped",
+            "ports": [
+              "{{HA_PORT}}:8123"
+            ],
+            "volumes": [
+              "{{BASE_PATH}}/homeassistant/config:/config"
+            ],
+            "environment": [
+              "TZ={{TZ}}"
+            ],
+            "labels": [
+              "portainer.managed=true"
+            ]
+          }
+        },
+        "networks": {
+          "default": {
+            "driver": "bridge"
+          }
+        }
+      }
+    },
+    {
+      "type": "stack",
+      "title": "Music Assistant (macOS)",
+      "description": "Music Assistant optimized for macOS/M1 with port mappings.",
+      "note": "⚠️ Local device discovery (AirPlay, Chromecast, etc.) may not work on macOS. Use cloud-based providers or manual IP addresses.",
+      "categories": ["Media", "Home Automation"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/music-assistant/brand/main/logo/icon.png",
+      "env": [
+        {
+          "name": "BASE_PATH",
+          "label": "Base Docker path",
+          "description": "Base directory for all Docker data (absolute path)",
+          "default": "/Users/mittalmak/docker"
+        },
+        {
+          "name": "TZ",
+          "label": "Timezone",
+          "default": "America/Los_Angeles"
+        },
+        {
+          "name": "MA_PORT",
+          "label": "Music Assistant Port",
+          "description": "Web UI port",
+          "default": "8095"
+        }
+      ],
+      "stackfile": {
+        "version": "3.9",
+        "services": {
+          "music-assistant": {
+            "image": "ghcr.io/music-assistant/server:latest",
+            "container_name": "music-assistant",
+            "restart": "unless-stopped",
+            "ports": [
+              "{{MA_PORT}}:8095"
+            ],
+            "volumes": [
+              "{{BASE_PATH}}/music-assistant/data:/data"
+            ],
+            "environment": [
+              "TZ={{TZ}}"
+            ],
+            "labels": [
+              "portainer.managed=true"
+            ]
+          }
+        },
+        "networks": {
+          "default": {
+            "driver": "bridge"
+          }
+        }
+      }
+    },
+    {
+      "type": "stack",
+      "title": "Music Assistant PO Token Generator",
+      "description": "One-shot PO token helper for Music Assistant providers.",
+      "note": "Run once, copy token, then remove the stack.",
+      "categories": ["Utility", "Media"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/music-assistant/brand/main/logo/icon.png",
+      "stackfile": {
+        "version": "3.9",
+        "services": {
+          "po-token": {
+            "image": "ghcr.io/jim60105/bgutil-pot:latest",
+            "container_name": "music-assistant-po-token",
+            "restart": "no",
+            "stdin_open": true,
+            "tty": true
+          }
+        }
+      }
+    },
+    {
+      "type": "stack",
+      "title": "Home Assistant (Linux)",
+      "description": "Home Assistant (Docker) using host networking. Full discovery support.",
+      "note": "Uses host networking. Requires Linux host. For macOS, use 'Home Assistant (macOS)' template instead.",
+      "categories": ["Home Automation"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/home-assistant/assets/master/logo/logo.png",
+      "env": [
+        {
+          "name": "BASE_PATH",
+          "label": "Base Docker path",
+          "description": "Base directory for all Docker data (absolute path)",
+          "default": "/home/docker"
+        },
+        {
+          "name": "TZ",
+          "label": "Timezone",
+          "default": "America/Los_Angeles"
+        }
+      ],
+      "stackfile": {
+        "version": "3.9",
+        "services": {
+          "homeassistant": {
+            "image": "ghcr.io/home-assistant/home-assistant:stable",
+            "container_name": "homeassistant",
+            "restart": "unless-stopped",
+            "network_mode": "host",
+            "privileged": true,
+            "volumes": [
+              "{{BASE_PATH}}/homeassistant/config:/config",
+              "/etc/localtime:/etc/localtime:ro"
+            ],
+            "environment": [
+              "TZ={{TZ}}"
+            ],
+            "labels": [
+              "portainer.managed=true"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stack",
+      "title": "Music Assistant (Linux)",
+      "description": "Music Assistant server with host networking. Full discovery support.",
+      "note": "Uses host networking. Requires Linux host. For macOS, use 'Music Assistant (macOS)' template instead.",
+      "categories": ["Media", "Home Automation"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/music-assistant/brand/main/logo/icon.png",
+      "env": [
+        {
+          "name": "BASE_PATH",
+          "label": "Base Docker path",
+          "description": "Base directory for all Docker data (absolute path)",
+          "default": "/home/docker"
+        },
+        {
+          "name": "TZ",
+          "label": "Timezone",
+          "default": "America/Los_Angeles"
+        }
+      ],
+      "stackfile": {
+        "version": "3.9",
+        "services": {
+          "music-assistant": {
+            "image": "ghcr.io/music-assistant/server:latest",
+            "container_name": "music-assistant",
+            "restart": "unless-stopped",
+            "network_mode": "host",
+            "volumes": [
+              "{{BASE_PATH}}/music-assistant/data:/data",
+              "/etc/localtime:/etc/localtime:ro"
+            ],
+            "environment": [
+              "TZ={{TZ}}"
+            ],
+            "labels": [
+              "portainer.managed=true"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
