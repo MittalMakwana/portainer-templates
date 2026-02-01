@@ -67,16 +67,24 @@
     },
     {
       "type": "stack",
-      "title": "Music Assistant PO Token Generator",
-      "description": "One-shot PO token helper for Music Assistant providers.",
-      "note": "Run once, copy token, then remove the stack.",
+      "title": "BgUtil PO Token Provider",
+      "description": "HTTP server that provides PO tokens for Music Assistant YouTube Music integration.",
+      "note": "Leave running - Music Assistant needs continuous access to this service.",
       "categories": ["Utility", "Media"],
       "platform": "linux",
       "logo": "https://raw.githubusercontent.com/music-assistant/brand/main/logo/icon.png",
       "repository": {
         "url": "https://github.com/MittalMakwana/portainer-templates",
         "stackfile": "templates/po-token/docker-compose.yml"
-      }
+      },
+      "env": [
+        {
+          "name": "PROVIDER_PORT",
+          "label": "Provider HTTP Port",
+          "description": "Port for PO token HTTP server",
+          "default": "4416"
+        }
+      ]
     },
     {
       "type": "stack",
