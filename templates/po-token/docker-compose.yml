@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  po-token:
+    image: ghcr.io/jim60105/bgutil-pot:latest
+    container_name: music-assistant-po-token
+    restart: "no"
+    stdin_open: true
+    tty: true
+    labels:
+      - "portainer.managed=true"

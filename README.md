@@ -1,160 +1,193 @@
 # Portainer Templates – Home Automation
 
-Custom Portainer templates for Home Assistant and Music Assistant, optimized for both M1 Mac and Linux.
+Production-ready Portainer v2 templates for self-hosted home automation and media services.
 
-## Templates Included
+## Quick Start
 
-### macOS/M1 Optimized (Recommended for Mac users)
-- **Home Assistant (macOS)** - Port-mapped, Portainer-managed
-- **Music Assistant (macOS)** - Port-mapped, Portainer-managed
-- **PO Token Generator** - One-shot utility (platform-agnostic)
+### 1. Add Templates to Portainer
 
-### Linux (Full Discovery Support)
-- **Home Assistant (Linux)** - Host networking, full mDNS/discovery
-- **Music Assistant (Linux)** - Host networking, full device discovery
+1. Open Portainer → **Settings** → **App Templates**
+2. Add this URL:
 
-## Setup Instructions
+```
+https://raw.githubusercontent.com/MittalMakwana/portainer-templates/main/templates.json
+```
 
-### 1. Docker Desktop Configuration (M1 Mac)
+3. Save
 
-Before deploying, ensure Docker Desktop has proper permissions:
+### 2. Deploy a Stack
+
+1. **App Templates** → Choose your template
+2. Edit environment variables if needed
+3. Click **Deploy the stack**
+
+Done. No compose files. No CLI. No guessing.
+
+## Available Templates
+
+### For macOS (M1/Intel)
+
+- **Home Assistant (macOS)** – Port-mapped, bridge networking
+- **Music Assistant (macOS)** – Port-mapped, bridge networking
+- **PO Token Generator** – One-shot utility
+
+⚠️ **macOS Limitations**: mDNS/device discovery doesn't work. Use cloud integrations or manual IPs.
+
+### For Linux
+
+- **Home Assistant (Linux)** – Host networking, full discovery
+- **Music Assistant (Linux)** – Host networking, full discovery
+
+✅ **Linux Benefits**: Full mDNS, device discovery, USB support.
+
+## Configuration
+
+All templates use environment variables. Defaults are pre-configured but customizable in Portainer UI.
+
+| Variable | Default (macOS) | Default (Linux) | Purpose |
+|----------|-----------------|-----------------|---------|
+| `BASE_PATH` | `/Users/mittalmak/docker` | `/opt/docker` | Volume mount base |
+| `TZ` | `America/Los_Angeles` | `America/Los_Angeles` | Container timezone |
+| `HA_PORT` | `8123` | N/A (host mode) | Home Assistant port |
+| `MA_PORT` | `8095` | N/A (host mode) | Music Assistant port |
+
+> ⚠️ Use **absolute paths** only. `~` doesn't work in Portainer.
+
+## Prerequisites
+
+### macOS
 
 ```bash
-# Open Docker Desktop → Settings → Resources → File Sharing
-# Add: /Users/mittalmak/docker (or your chosen base path)
-```
-
-Recommended settings:
-- **Memory**: 4GB minimum (8GB recommended)
-- **VirtioFS**: Enabled (default)
-
-### 2. Add Templates to Portainer
-
-1. Open Portainer web UI
-2. Navigate to **Settings** → **App Templates**
-3. Add this single URL:
-
-```
-https://raw.githubusercontent.com/<your-username>/portainer-templates/main/templates.json
-```
-
-This loads all 5 templates at once! 🎉
-
-### 3. Create Base Directory
-
-```bash
+# Create base directory
 mkdir -p /Users/mittalmak/docker/{homeassistant/config,music-assistant/data}
+
+# Docker Desktop → Settings → Resources → File Sharing
+# Add: /Users/mittalmak/docker
 ```
 
-### 4. Deploy Stacks
+### Linux
 
-1. Go to **App Templates** in Portainer
-2. Select your desired template:
-   - For M1 Mac: Use templates ending with "(macOS)"
-   - For Linux: Use templates ending with "(Linux)"
-3. Fill in environment variables (or accept defaults)
-4. Click **Deploy the stack**
+```bash
+# Create base directory
+mkdir -p /opt/docker/{homeassistant/config,music-assistant/data}
 
-### 5. Access Services
+# For USB devices (Zigbee/Z-Wave)
+sudo usermod -aG dialout $USER
+```
 
-- **Home Assistant**: `http://localhost:8123`
-- **Music Assistant**: `http://localhost:8095`
+## Stack Management
 
-## Defaults
+All operations through Portainer UI:
 
-| Setting | Value |
-|---------|-------|
-| Timezone | `America/Los_Angeles` |
-| Base Path | `/Users/mittalmak/docker` |
-| HA Port | `8123` |
-| MA Port | `8095` |
+- **Deploy**: App Templates → Select → Deploy
+- **Edit**: Stacks → [Stack] → Editor → Update the stack
+- **Logs**: Stacks → [Stack] → Logs
+- **Restart**: Stack action buttons
+- **Delete**: Stacks → [Stack] → Delete
 
-> ⚠️ Portainer requires absolute paths - `~` is not supported
-
-## M1 Mac Considerations
-
-✅ **What works:**
-- All basic functionality
-- Web UI access
-- Portainer stack management
-- Native ARM64 images
-
-⚠️ **Limitations:**
-- No mDNS/device discovery (Docker Desktop limitation)
-- Use cloud integrations or manual IP addresses
-- USB devices not recommended
-
-Use the `-macos` templates for best compatibility on M1 Macs.
-
-## Managing Stacks
-
-All stack management is done through the Portainer UI:
-
-- **Deploy**: App Templates → Select template → Deploy the stack
-- **View/Edit**: Stacks → [Stack Name] → Editor → Update the stack
-- **Logs**: Stacks → [Stack Name] → Logs
-- **Stop/Start/Restart**: Use the stack action buttons
-- **Delete**: Stacks → [Stack Name] → Delete this stack
-
-No CLI commands needed! Everything is managed through Portainer. ✨
+No CLI needed.
 
 ## Troubleshooting
 
-### Stack won't deploy
-- Verify Docker Desktop is running
-- Check file sharing permissions in Docker Desktop settings
-- Ensure base directory exists: `ls -la /Users/mittalmak/docker/`
+**Stack won't deploy**
+- Check Docker is running
+- Verify file sharing permissions (macOS: Docker Desktop settings)
+- Ensure base directory exists
 
-### Can't access web UI
-- Verify container is running in Portainer
-- Check port isn't in use: `lsof -i :8123`
-- Use `localhost` (not `127.0.0.1`)
+**Can't access web UI**
+- Verify container is running (Portainer → Containers)
+- Check port conflicts: `lsof -i :8123`
+- Use `localhost` not `127.0.0.1` (macOS)
 
-### Device discovery doesn't work (macOS)
-- Expected behavior - Docker Desktop on macOS doesn't support mDNS
-- Use manual IP addresses or cloud-based integrations
+**Device discovery doesn't work (macOS)**
+- Expected behavior – use cloud integrations or manual IPs
 - For full discovery, use Linux templates on a Linux host
-
-## Adding More Templates
-
-Edit `templates.json` and append to the `"templates"` array:
-
-```json
-{
-  "version": "2",
-  "templates": [
-    {...existing templates...},
-    {
-      "type": "stack",
-      "title": "Your New Service",
-      "description": "Service description",
-      "categories": ["Category"],
-      "platform": "linux",
-      "logo": "https://...",
-      "env": [...],
-      "stackfile": {...}
-    }
-  ]
-}
-```
-
-After pushing changes, Portainer will automatically reload the updated templates.
 
 ## Repository Structure
 
 ```
 portainer-templates/
-├── LICENSE
+├── templates.json                            # Portainer consumes this
 ├── README.md
-└── templates.json        # All 5 templates in one file
+└── templates/
+    ├── homeassistant-macos/
+    │   ├── docker-compose.yml
+    │   ├── .env.example
+    │   └── README.md
+    ├── homeassistant-linux/
+    │   ├── docker-compose.yml
+    │   ├── .env.example
+    │   └── README.md
+    ├── music-assistant-macos/
+    │   ├── docker-compose.yml
+    │   ├── .env.example
+    │   └── README.md
+    ├── music-assistant-linux/
+    │   ├── docker-compose.yml
+    │   ├── .env.example
+    │   └── README.md
+    └── po-token/
+        ├── docker-compose.yml
+        ├── .env.example
+        └── README.md
 ```
+
+Each service is self-contained. Compose files are version-controlled separately.
+
+## Adding New Templates
+
+1. Create new directory: `templates/your-service/`
+2. Add `docker-compose.yml`, `.env.example`, `README.md`
+3. Update `templates.json`:
+
+```json
+{
+  "type": "stack",
+  "title": "Your Service",
+  "description": "Service description",
+  "categories": ["Category"],
+  "platform": "linux",
+  "logo": "https://...",
+  "repository": {
+    "url": "https://github.com/MittalMakwana/portainer-templates",
+    "stackfile": "templates/your-service/docker-compose.yml"
+  },
+  "env": [
+    {
+      "name": "BASE_PATH",
+      "label": "Base Docker path",
+      "default": "/opt/docker"
+    }
+  ]
+}
+```
+
+4. Push to GitHub → Portainer auto-reloads
+
+## Best Practices
+
+**Do:**
+- ✅ One service per template
+- ✅ Use environment variables for all paths
+- ✅ Include healthchecks
+- ✅ Use specific image tags (not `latest` in production)
+- ✅ Document platform-specific limitations
+
+**Don't:**
+- ❌ Hardcode paths or IPs
+- ❌ Use `~` in paths
+- ❌ Mix unrelated services in one stack
+- ❌ Commit secrets to git
 
 ## Architecture Support
 
-All images support ARM64 (M1 native):
-- ✅ Home Assistant - multi-arch
-- ✅ Music Assistant - multi-arch
-- ✅ PO Token Generator - multi-arch
+All images are multi-arch (ARM64 + x86_64):
+
+- ✅ Home Assistant
+- ✅ Music Assistant
+- ✅ PO Token Generator
+
+M1 Macs pull ARM64 natively. No Rosetta needed.
 
 ## License
 

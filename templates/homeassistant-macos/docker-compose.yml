@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    ports:
+      - "${HA_PORT:-8123}:8123"
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/homeassistant/config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    labels:
+      - "portainer.managed=true"
+
+networks:
+  default:
+    driver: bridge
