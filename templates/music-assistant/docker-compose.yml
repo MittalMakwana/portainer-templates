@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      - TZ=${TZ}
+      - TZ=${TZ:-America/Los_Angeles}
       - LOG_LEVEL=info
     volumes:
-      - ${BASE_PATH}/music-assistant/data:/data
+      - ${BASE_PATH:-/opt/docker}/music-assistant/data:/data
     cap_add:
       - SYS_ADMIN
       - DAC_READ_SEARCH
