@@ -1,0 +1,25 @@
+services:
+  portainer:
+    image: portainer/portainer-ee:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/docker/appdata/portainer:/data
+    depends_on:
+      - portainer_agent
+
+  portainer_agent:
+    image: portainer/agent:latest
+    container_name: portainer_agent
+    restart: always
+    ports:
+      - "9001:9001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    environment:
+      - AGENT_CLUSTER_ADDR=tasks.portainer_agent
